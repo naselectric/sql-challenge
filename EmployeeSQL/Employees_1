@@ -1,0 +1,250 @@
+CREATE TABLE departments(
+dept_no TEXT PRIMARY KEY,
+dept_name VARCHAR(100));
+
+SELECT *
+FROM departments;
+
+DELETE from dept_emp
+WHERE emp_no ='emp_no';
+
+SELECT *
+FROM departments
+
+CREATE TABLE dept_emp(
+emp_no INT,
+dept_no VARCHAR(50));
+
+
+
+DROP TABLE departments;
+
+SELECT *
+FROM dept_emp
+
+
+ALTER TABLE dept_emp
+ALTER COLUMN dept_no TYPE TEXT;
+
+
+CREATE TABLE dept_manager(
+dept_no TEXT,
+emp_no TEXT);
+
+SELECT *
+FROM dept_manager
+
+DELETE from dept_manager
+WHERE dept_no ='dept_no';
+
+
+CREATE TABLE employees(
+emp_no TEXT,
+emp_title TEXT,
+birth_date TEXT,
+first_name VARCHAR(70),
+last_name VARCHAR(70),
+sex TEXT,
+hire_date TEXT);
+
+
+SELECT *
+FROM employees
+
+DELETE from employees
+WHERE emp_no ='emp_no';
+
+
+CREATE TABLE salaries(
+emp_no TEXT,
+salary INT,
+birth_date TEXT);
+
+
+SELECT *
+FROM salaries
+
+ALTER TABLE salaries 
+DROP COLUMN birth_date;
+
+
+ALTER TABLE salaries
+ALTER COLUMN salary TYPE TEXT;
+
+
+
+DELETE from salaries
+WHERE emp_no ='emp_no';
+
+
+CREATE TABLE titles(
+title_id TEXT,
+title VARCHAR(50));
+
+
+SELECT *
+FROM titles;
+
+DELETE from titles
+WHERE title ='title';
+
+
+ALTER TABLE salaries
+RENAME COLUMN id TO emp_no;
+
+ALTER TABLE salaries
+ADD PRIMARY KEY (emp_no);
+
+ALTER TABLE employees  
+ADD FOREIGN KEY (emp_no) 
+REFERENCES salaries (emp_no);
+
+
+SELECT *
+FROM employees
+
+SELECT salaries.emp_no,last_name,first_name,sex,salary
+FROM salaries 
+INNER JOIN employees
+ON  salaries.emp_no=employees.emp_no;
+
+SELECT
+	last_name,
+	first_name,
+    hire_date
+FROM
+	employees
+WHERE
+	(substring(hire_date,7,15) = '1986')
+    OR (substring(hire_date,7,15) ='986')
+    OR (substring(hire_date,7,15) ='86');
+
+
+ALTER TABLE employees
+ALTER COLUMN hire_date TYPE VARCHAR(30);
+
+
+ALTER TABLE titles
+ADD PRIMARY KEY (title_id);
+
+
+SELECT *
+FROM titles
+
+
+ALTER TABLE employees  
+ADD FOREIGN KEY (emp_title) 
+REFERENCES titles (title_id);
+
+
+
+CREATE TABLE employee_titles AS
+SELECT titles.title,emp_no,last_name,first_name
+FROM titles 
+INNER JOIN employees
+ON  titles.title_id=employees.emp_title;
+
+
+SELECT *
+FROM employee_titles;
+
+ALTER TABLE dept_emp
+ADD PRIMARY KEY (emp_no);
+
+
+ALTER TABLE employee_titles  
+ADD FOREIGN KEY (emp_no) 
+REFERENCES dept_emp (emp_no);
+
+
+
+CREATE TABLE department_employees AS
+SELECT dept_emp.dept_no,title,employee_titles.emp_no,last_name,first_name
+FROM dept_emp 
+INNER JOIN employee_titles
+ON  dept_emp.emp_no=employee_titles.emp_no;
+
+
+SELECT *
+FROM department_employees;
+
+
+ALTER TABLE department_employees  
+ADD FOREIGN KEY (dept_no) 
+REFERENCES departments (dept_no);
+
+
+
+CREATE TABLE department_employees2 AS
+SELECT departments.dept_no,departments.dept_name,title,emp_no,last_name,first_name
+FROM departments 
+INNER JOIN department_employees
+ON  departments.dept_no=department_employees.dept_no;
+
+
+SELECT *
+FROM department_employees2;
+
+CREATE TABLE department_managers AS
+SELECT dept_no,dept_name,emp_no,title,last_name,first_name
+FROM department_employees2
+WHERE title='Manager';
+
+
+SELECT *
+FROM department_managers;
+
+SELECT emp_no,last_name,first_name,dept_name
+FROM department_employees2;
+
+SELECT *
+FROM employees;
+
+
+SELECT first_name,
+last_name,
+sex
+FROM employees
+WHERE (first_name='Hercules')
+AND (substring(last_name,1,1)='B');
+
+
+SELECT dept_name,emp_no,last_name,first_name
+FROM department_employees2
+WHERE
+dept_name='Sales';
+
+
+
+SELECT dept_name,emp_no,last_name,first_name
+FROM department_employees2
+WHERE
+(dept_name='Sales')
+OR (dept_name='Development');
+
+
+SELECT 
+last_name,
+COUNT(last_name) 
+FROM 
+   department_employees2
+GROUP BY
+last_name
+ORDER BY
+count DESC;
+
+SELECT *
+FROM salaries;
+
+
+--for bonus question 3
+
+CREATE TABLE title_salaries AS
+SELECT title,salary
+FROM employee_titles
+INNER JOIN salaries
+ON salaries.emp_no=employee_titles.emp_no;
+
+
+SELECT *
+FROM title_salaries;
